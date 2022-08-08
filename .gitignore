@@ -1,0 +1,20 @@
+# Node
+node_modules/
+
+# Hardhat
+cache/
+abis/
+artifacts/
+
+# Typechain
+typechain/
+
+# Env
+.env
+
+# Coverage
+coverage/
+coverage.json
+
+.idea
+build/
