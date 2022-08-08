@@ -1,15 +1,11 @@
 {
-  "name": "@levxdao/hardhat-foundation",
+  "name": "@sushiswap/sushi-dao-contracts",
   "description": "",
   "keywords": [
     "levx",
     "levx-dao"
   ],
-  "homepage": "https://github.com/levxdao/hardhat-foundation#readme",
-  "bugs": {
-    "url": "https://github.com/levxdao/hardhat-foundation/issues",
-    "email": "team@levx.io"
-  },
+  "homepage": "https://github.com/sushiswap/sushi-dao-contracts#readme",
   "license": "WTFPL",
   "author": "LevX <team@levx.io>",
   "files": [
