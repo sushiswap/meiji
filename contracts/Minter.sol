@@ -1,7 +1,7 @@
 pragma solidity ^0.8.14;
 
 interface LiquidityGauge {
-    function integrate_faction(address addr) external view returns (uint256);
+    function integrate_fraction(address addr) external view returns (uint256);
     function user_checkpoint(address addr) external returns (bool);
 }
 
@@ -21,10 +21,12 @@ contract Minter {
     mapping(address => mapping(address => uint256)) public minted;
     mapping(address => mapping(address => bool)) public allowed_to_mint_for;
     
-    constructor(address _token, address _controller) external {
+    constructor(address _token, address _controller) {
         token = _token;
-        constructor = _contructor;
+        controller = _controller;
     }
+
+    uint locked = 1;
 
     modifier lock() {
         require(locked == 1);
@@ -37,18 +39,16 @@ contract Minter {
     }
 
     function _mint_for(address gauge_address, address _for) internal {
-        require(GaugeController(controller).gauge_types(gauge_address) >= 0); # dev: Gauge is not allowed
+        require(GaugeController(controller).gauge_types(gauge_address) >= 0); // dev: Gauge is not allowed
 
         LiquidityGauge(gauge_address).user_checkpoint(_for);
     
         uint256 total_mint = LiquidityGauge(gauge_address).integrate_fraction(_for);
-        uint256 to_mint = total_mint - minted[_for][_gauge_address];
+        uint256 to_mint = total_mint - minted[_for][gauge_address];
 
         if (to_mint != 0) {
             MERC20(token).mint(_for, to_mint);
             minted[_for][gauge_address] = total_mint;
-
-            emit Minted(_for, gauge_address, total_mint);
         }
     }
 
@@ -56,7 +56,7 @@ contract Minter {
         _mint_for(gauge_address, msg.sender);
     }
 
-    function mint_many(address[8[ calldata gauge_addresses) external lock {
+    function mint_many(address[8]calldata gauge_addresses) external lock {
         for(uint256 i = 0; i < 8; ++i) {
             if(gauge_addresses[i] == address(0)) {
                 break;
@@ -74,6 +74,6 @@ contract Minter {
     }
     
     function toggle_approve_mint(address minting_user) external {
-        allowed_to_mint_for[minting_user][msg.sender] = !allowed_to_mint_for[minting_user][msg.sender]
+        allowed_to_mint_for[minting_user][msg.sender] = !allowed_to_mint_for[minting_user][msg.sender];
     }
 }
