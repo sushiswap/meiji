@@ -15,8 +15,8 @@ interface GaugeController {
 }
 
 contract Minter {
-    address private immutable token;
-    address private immutable controller;
+    address public immutable token;
+    address public immutable controller;
 
     // Maybe make a double key mapping?
     mapping(address => mapping(address => uint256)) public minted;
