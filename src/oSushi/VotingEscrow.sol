@@ -2,7 +2,7 @@
 pragma solidity 0.8.15;
 
 import "./interfaces/IVotingEscrow.sol";
-import "./interfaces/IERC20.sol";
+import "../../lib/solmate/src/tokens/ERC20.sol";
 import "../../lib/solmate/src/utils/SafeTransferLib.sol";
 import "../../lib/solmate/src/utils/ReentrancyGuard.sol";
 import "../../lib/solmate/src/auth/Owned.sol";
@@ -33,7 +33,6 @@ import "./libraries/Integers.sol";
 //       maxtime
 
 contract VotingEscrow is Owned, ReentrancyGuard, IVotingEscrow {
-    using SafeTransferLib for IERC20;
     using Integers for int128;
     using Integers for uint256;
 
@@ -86,7 +85,7 @@ contract VotingEscrow is Owned, ReentrancyGuard, IVotingEscrow {
         token = _token;
         name = _name;
         symbol = _symbol;
-        decimals = IERC20(_token).decimals();
+        decimals = ERC20(_token).decimals();
 
         pointHistory[0].blk = block.number;
         pointHistory[0].ts = block.timestamp;
@@ -304,7 +303,7 @@ contract VotingEscrow is Owned, ReentrancyGuard, IVotingEscrow {
         // _locked.end > block.timestamp (always)
         _checkpoint(_addr, old_locked, _locked);
 
-        IERC20(token).safeTransferFrom(_addr, address(this), _value);
+        SafeTransferLib.safeTransferFrom(ERC20(token), _addr, address(this), _value);
 
         emit Deposit(_addr, _value, _locked.end, _type, block.timestamp);
         emit Supply(supply_before, supply_before + _value);
@@ -442,7 +441,7 @@ contract VotingEscrow is Owned, ReentrancyGuard, IVotingEscrow {
         // Both can have >= 0 amount
         _checkpoint(msg.sender, _locked, LockedBalance(0, 0, 0));
 
-        IERC20(token).safeTransfer(msg.sender, value / 2);
+        SafeTransferLib.safeTransfer(ERC20(token), msg.sender, value / 2);
         // TODO: distribute another 50% to holders
 
         emit Cancel(msg.sender, value, block.timestamp);
@@ -467,7 +466,7 @@ contract VotingEscrow is Owned, ReentrancyGuard, IVotingEscrow {
         // Both can have >= 0 amount
         _checkpoint(msg.sender, _locked, LockedBalance(0, 0, 0));
 
-        IERC20(token).safeTransfer(msg.sender, value);
+        SafeTransferLib.safeTransfer(ERC20(token),msg.sender, value);
 
         emit Withdraw(msg.sender, value, block.timestamp);
         emit Supply(supply_before, supply_before - value);

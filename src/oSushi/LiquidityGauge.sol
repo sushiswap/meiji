@@ -3,7 +3,7 @@ pragma solidity 0.8.15;
 import "../../lib/solmate/src/utils/SafeTransferLib.sol";
 import "../../lib/solmate/src/utils/ReentrancyGuard.sol";
 import "../../lib/solmate/src/auth/Owned.sol";
-import "./interfaces/IERC20.sol";
+import "../../lib/solmate/src/tokens/ERC20.sol";
 import "./interfaces/ILiquidityGauge.sol";
 import "./interfaces/IGaugeController.sol";
 import "./interfaces/IMinter.sol";
@@ -105,7 +105,7 @@ contract LiquidityGauge is Owned, ReentrancyGuard, ILiquidityGauge {
         );
         uint256 _balance = balanceOf[addr];
 
-        require(IERC20(_votingEscrow).balanceOf(addr) == 0 || tVE > tLast, "LG: KICK_NOT_ALLOWED");
+        require(ERC20(_votingEscrow).balanceOf(addr) == 0 || tVE > tLast, "LG: KICK_NOT_ALLOWED");
         require(workingBalances[addr] > (_balance * TOKENLESS_PRODUCTION) / 100, "LG: KICK_NOT_NEEDED");
 
         _checkpoint(addr);
@@ -128,7 +128,7 @@ contract LiquidityGauge is Owned, ReentrancyGuard, ILiquidityGauge {
 
             _updateLiquidityLimit(addr, _balance, _supply);
 
-            SafeTransferLib.safeTransferFrom(IERC20(lpToken), msg.sender, address(this), _value);
+            SafeTransferLib.safeTransferFrom(ERC20(lpToken), msg.sender, address(this), _value);
         }
 
         emit Deposit(addr, _value);
@@ -148,7 +148,7 @@ contract LiquidityGauge is Owned, ReentrancyGuard, ILiquidityGauge {
 
         _updateLiquidityLimit(msg.sender, _balance, _supply);
 
-        SafeTransferLib.safeTransfer(IERC20(lpToken), msg.sender, _value);
+        SafeTransferLib.safeTransfer(ERC20(lpToken), msg.sender, _value);
 
         emit Withdraw(msg.sender, _value);
     }
@@ -175,8 +175,8 @@ contract LiquidityGauge is Owned, ReentrancyGuard, ILiquidityGauge {
     ) internal {
         // To be called after totalSupply is updated
         address _votingEscrow = votingEscrow;
-        uint256 votingBalance = IERC20(_votingEscrow).balanceOf(addr);
-        uint256 votingTotal = IERC20(_votingEscrow).totalSupply();
+        uint256 votingBalance = ERC20(_votingEscrow).balanceOf(addr);
+        uint256 votingTotal = ERC20(_votingEscrow).totalSupply();
 
         uint256 lim = (l * TOKENLESS_PRODUCTION) / 100;
         if ((votingTotal > 0) && (block.timestamp > periodTimestamp[0] + BOOST_WARMUP))
