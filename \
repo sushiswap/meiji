@@ -148,7 +148,7 @@ contract LiquidityGauge is Owned, ReentrancyGuard, ILiquidityGauge {
 
         _updateLiquidityLimit(msg.sender, _balance, _supply);
 
-        SafeTransferLib.safeTransfer(ERC20(lpToken), msg.sender, _value);
+        SafeTransferLib.safeTransfer(IERC20(lpToken), msg.sender, _value);
 
         emit Withdraw(msg.sender, _value);
     }
@@ -175,8 +175,8 @@ contract LiquidityGauge is Owned, ReentrancyGuard, ILiquidityGauge {
     ) internal {
         // To be called after totalSupply is updated
         address _votingEscrow = votingEscrow;
-        uint256 votingBalance = ERC20(_votingEscrow).balanceOf(addr);
-        uint256 votingTotal = ERC20(_votingEscrow).totalSupply();
+        uint256 votingBalance = IERC20(_votingEscrow).balanceOf(addr);
+        uint256 votingTotal = IERC20(_votingEscrow).totalSupply();
 
         uint256 lim = (l * TOKENLESS_PRODUCTION) / 100;
         if ((votingTotal > 0) && (block.timestamp > periodTimestamp[0] + BOOST_WARMUP))

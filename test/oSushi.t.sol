@@ -1,6 +1,5 @@
 pragma solidity 0.8.15;
 
-import "../lib/forge-std/src/Test.sol";
 // End to End oSushi tests, seeing how they work against existing Sushi 
 // Contracts and ensuring the system hums along
 
@@ -14,7 +13,7 @@ import { Minter } from "../src/oSushi/Minter.sol";
 import { VotingEscrow } from "../src/oSushi/VotingEscrow.sol";
 
 
-contract oSushiTest is DSTest { 
+contract oSushiTest { 
     address constant SUSHI = address(0);
 
     GaugeController controller;
