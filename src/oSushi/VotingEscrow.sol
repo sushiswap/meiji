@@ -32,7 +32,7 @@ import "./libraries/Integers.sol";
 // 0 +--------+------> time
 //       maxtime
 
-contract VotingEscrow is Owned, ReentrancyGuard, IVotingEscrow {
+contract VotingEscrow is ReentrancyGuard, IVotingEscrow {
     using Integers for int128;
     using Integers for uint256;
 
@@ -73,15 +73,11 @@ contract VotingEscrow is Owned, ReentrancyGuard, IVotingEscrow {
     string public override symbol;
     uint8 public immutable override decimals;
 
-    // Checker for whitelisted (smart contract) wallets which are allowed to deposit
-    // The goal is to prevent tokenizing the escrow
-    address public override smartWalletChecker;
-
     constructor(
         address _token,
         string memory _name,
         string memory _symbol
-    ) Owned(msg.sender) {
+    ) {
         token = _token;
         name = _name;
         symbol = _symbol;
@@ -89,19 +85,6 @@ contract VotingEscrow is Owned, ReentrancyGuard, IVotingEscrow {
 
         pointHistory[0].blk = block.number;
         pointHistory[0].ts = block.timestamp;
-    }
-
-    /**
-     * @notice Check if the call is from an EOA or a whitelisted smart contract, revert if not
-     */
-    modifier assertNotContract {
-        if (msg.sender != tx.origin) {
-            address checker = smartWalletChecker;
-            if (checker != address(0)) {
-                require(ISmartWalletChecker(checker).check(msg.sender), "VE: CONTRACT_NOT_ALLOWED");
-            }
-        }
-        _;
     }
 
     /**
@@ -131,14 +114,6 @@ contract VotingEscrow is Owned, ReentrancyGuard, IVotingEscrow {
      */
     function unlockTime(address _addr) external view override returns (uint256) {
         return locked[_addr].end;
-    }
-
-    /**
-     * @notice Set an external contract to check for approved smart contract wallets
-     * @param addr Address of Smart contract checker
-     */
-    function setSmartWalletChecker(address addr) external override onlyOwner {
-        smartWalletChecker = addr;
     }
 
     /**
@@ -361,7 +336,7 @@ contract VotingEscrow is Owned, ReentrancyGuard, IVotingEscrow {
      * @param _value Amount to deposit
      * @param _duration Epoch time until tokens unlock from now
      */
-    function createLock(uint256 _value, uint256 _duration) external override nonReentrant assertNotContract {
+    function createLock(uint256 _value, uint256 _duration) external override nonReentrant {
         uint256 unlock_time = ((block.timestamp + _duration) / WEEK) * WEEK;
         // Locktime is rounded down to a multiple of interval
         LockedBalance memory _locked = locked[msg.sender];
@@ -380,7 +355,7 @@ contract VotingEscrow is Owned, ReentrancyGuard, IVotingEscrow {
      * @param _addr User's wallet address
      * @param _value Amount of tokens to deposit and add to the lock
      */
-    function increaseAmountFor(address _addr, uint256 _value) external override nonReentrant assertNotContract {
+    function increaseAmountFor(address _addr, uint256 _value) external override nonReentrant {
         LockedBalance memory _locked = locked[_addr];
 
         require(_value > 0, "VE: INVALID_VALUE");
@@ -395,7 +370,7 @@ contract VotingEscrow is Owned, ReentrancyGuard, IVotingEscrow {
      *          without modifying the unlock time
      * @param _value Amount of tokens to deposit and add to the lock
      */
-    function increaseAmount(uint256 _value) external override nonReentrant assertNotContract {
+    function increaseAmount(uint256 _value) external override nonReentrant {
         LockedBalance memory _locked = locked[msg.sender];
 
         require(_value > 0, "VE: INVALID_VALUE");
@@ -409,7 +384,7 @@ contract VotingEscrow is Owned, ReentrancyGuard, IVotingEscrow {
      * @notice Extend the unlock time for `msg.sender` to `_duration`
      * @param _duration Increased epoch time for unlocking
      */
-    function increaseUnlockTime(uint256 _duration) external override nonReentrant assertNotContract {
+    function increaseUnlockTime(uint256 _duration) external override {
         LockedBalance memory _locked = locked[msg.sender];
         uint256 unlock_time = ((_locked.end + _duration) / WEEK) * WEEK;
         // Locktime is rounded down to a multiple of interval
