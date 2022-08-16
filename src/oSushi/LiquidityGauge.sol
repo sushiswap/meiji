@@ -88,7 +88,7 @@ contract LiquidityGauge is Owned, ReentrancyGuard, ILiquidityGauge {
      */
     function claimableTokens(address addr) external override returns (uint256) {
         _checkpoint(addr);
-        return integrateFraction[addr] = IMinter(minter).minted(addr, address(this));
+        return integrateFraction[addr] - IMinter(minter).minted(addr, address(this));
     }
 
     /**
@@ -214,7 +214,8 @@ contract LiquidityGauge is Owned, ReentrancyGuard, ILiquidityGauge {
         uint256 _workingBalance = workingBalances[addr];
         uint256 _workingSupply = workingSupply;
 
-        if (isKilled) rate = 0; // Stop distributing inflation as soon as killed
+        if (isKilled) rate = 0;
+        // Stop distributing inflation as soon as killed
 
         // Update integral of 1/total
         if (block.timestamp > _periodTime) {
