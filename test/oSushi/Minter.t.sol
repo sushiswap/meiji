@@ -49,7 +49,15 @@ contract MinterUnitTest {
     }
 
     function testMintMany() public {
+        MockGauge gauge = new MockGauge();
 
+        uint256 initial_balance = token.balanceOf(address(this));
+
+        minter.mint(address(gauge));
+
+        uint256 final_balance = token.balanceOf(address(this));
+    
+        require(final_balance > initial_balance, "Minting Failed");
     }
 
     function testMintFor() public {}

@@ -21,8 +21,6 @@ interface IVotingEscrow {
 
     function decimals() external view returns (uint8);
 
-    function smartWalletChecker() external view returns (address);
-
     function supply() external view returns (uint256);
 
     function locked(address account)
@@ -65,8 +63,6 @@ interface IVotingEscrow {
     function getCheckpointTime(address _addr, uint256 _idx) external view returns (uint256);
 
     function unlockTime(address _addr) external view returns (uint256);
-
-    function setSmartWalletChecker(address addr) external;
 
     function checkpoint() external;
 

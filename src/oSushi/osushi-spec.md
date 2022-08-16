@@ -1,16 +1,10 @@
 ## 🍣 Sushi Gauges
 
-Curve-style gauges have been a constant source of admiration from the DeFi community, as a way to distribute revenue and protect token price. Previous proposals such as [oSushi](https://forum.sushi.com/t/sushinomics-introducing-osushi/4055) and recently from [LevX](https://forum.sushi.com/t/make-sushiswap-decentralized-again/10950/9) have looked to add Gauges to Sushi, and this proposal will see Gauges similar to the ones discussed there implemented.
-
-The gauges proposed here are near identical to those proposed in the oSushi proposal, but one modification is needed for oSushi to work. Since SUSHI emissions are cut off in just over a year, Gauges will also need to be funded with the xSushi fee.
-
-So the implementation of Gauges will see 90% of the total xSushi fee redirected to Gauges. These xSushi fees will then be used to buy SUSHI which will then in turn be distributed by the gauges. In addition to xSushi fees, 70% of remaining SUSHI emissions which would usually have been distributed via Onsen will be redirected oSushi Gauges.
-
-oSushi would then be implemented with the following parameters.
+oSushi will recieve 90% of xSushi fee revenues, these fees will be auctioned off for SUSHI which will then be added on top of emissions.
 
 ### 🍣 oSUSHI
 
-This is similar to veCRV in Curve ecosystem but to inherit the legacy proposal, we'll use the name oSUSHI instead of veSUSHI. To receive oSushi you must lock up your SUSHI for at least 1 month up to 4 years. The longer the period is and the more SUSHI you lock up, the more oSUSHI you get. However, all of your SUSHI will be locked up in the contract until your chosen lockup period ends.
+oSushi stands for Onsen Sushi, as it will now dictate the Onsen Gauges. oSushi will be it's own new token, but unlike other tokens it will be non-transferrable. oSushi is minted when someone locks up Sushi
 
 Unlike SUSHI, this token is non-transferrable, so you can’t buy or sell it. When you lock up your SUSHI you can choose to delegate your oSushi to someone else, but this delegation is one-time and cannot be changed until your vesting term ends (Similar to how Curve works). Also, while you can unlock your SUSHI, doing so will impose a penalty of 50%, which will then be distributed through the Gauges as extra emissions.
 
