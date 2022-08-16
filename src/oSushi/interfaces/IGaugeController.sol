@@ -1,5 +1,5 @@
 // SPDX-License-Identifier: UNLICENSED
-pragma solidity ^0.8.0;
+pragma solidity 0.8.15;
 
 interface IGaugeController {
     event AddType(string name, int128 gaugeType);

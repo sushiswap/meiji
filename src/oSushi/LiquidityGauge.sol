@@ -1,9 +1,9 @@
 // SPDX-License-Identifier: UNLICENSED
-pragma solidity ^0.8.14;
-
-import "@openzeppelin/contracts/access/Ownable.sol";
-import "@openzeppelin/contracts/security/ReentrancyGuard.sol";
-import "@openzeppelin/contracts/token/ERC20/utils/SafeERC20.sol";
+pragma solidity 0.8.15;
+import "../../lib/solmate/src/utils/SafeTransferLib.sol";
+import "../../lib/solmate/src/utils/ReentrancyGuard.sol";
+import "../../lib/solmate/src/auth/Owned.sol";
+import "../../lib/solmate/src/tokens/ERC20.sol";
 import "./interfaces/ILiquidityGauge.sol";
 import "./interfaces/IGaugeController.sol";
 import "./interfaces/IMinter.sol";
@@ -14,9 +14,7 @@ function _min(uint256 a, uint256 b) pure returns (uint256) {
     return b;
 }
 
-contract LiquidityGauge is Ownable, ReentrancyGuard, ILiquidityGauge {
-    using SafeERC20 for IERC20;
-
+contract LiquidityGauge is Owned, ReentrancyGuard, ILiquidityGauge {
     uint256 internal constant TOKENLESS_PRODUCTION = 40;
     uint256 internal constant BOOST_WARMUP = 2 * 7 * 86400;
     uint256 internal constant WEEK = 604800;
@@ -53,7 +51,7 @@ contract LiquidityGauge is Ownable, ReentrancyGuard, ILiquidityGauge {
 
     bool public isKilled;
 
-    constructor(address lpAddr, address _minter) {
+    constructor(address lpAddr, address _minter) Owned(msg.sender) {
         require(lpAddr != address(0), "LG: INVALID_LP_ADDR");
         require(_minter != address(0), "LG: INVALID_MINTER");
 
@@ -107,7 +105,7 @@ contract LiquidityGauge is Ownable, ReentrancyGuard, ILiquidityGauge {
         );
         uint256 _balance = balanceOf[addr];
 
-        require(IERC20(_votingEscrow).balanceOf(addr) == 0 || tVE > tLast, "LG: KICK_NOT_ALLOWED");
+        require(ERC20(_votingEscrow).balanceOf(addr) == 0 || tVE > tLast, "LG: KICK_NOT_ALLOWED");
         require(workingBalances[addr] > (_balance * TOKENLESS_PRODUCTION) / 100, "LG: KICK_NOT_NEEDED");
 
         _checkpoint(addr);
@@ -130,7 +128,7 @@ contract LiquidityGauge is Ownable, ReentrancyGuard, ILiquidityGauge {
 
             _updateLiquidityLimit(addr, _balance, _supply);
 
-            IERC20(lpToken).safeTransferFrom(msg.sender, address(this), _value);
+            SafeTransferLib.safeTransferFrom(ERC20(lpToken), msg.sender, address(this), _value);
         }
 
         emit Deposit(addr, _value);
@@ -150,7 +148,7 @@ contract LiquidityGauge is Ownable, ReentrancyGuard, ILiquidityGauge {
 
         _updateLiquidityLimit(msg.sender, _balance, _supply);
 
-        IERC20(lpToken).safeTransfer(msg.sender, _value);
+        SafeTransferLib.safeTransfer(ERC20(lpToken), msg.sender, _value);
 
         emit Withdraw(msg.sender, _value);
     }
@@ -177,8 +175,8 @@ contract LiquidityGauge is Ownable, ReentrancyGuard, ILiquidityGauge {
     ) internal {
         // To be called after totalSupply is updated
         address _votingEscrow = votingEscrow;
-        uint256 votingBalance = IERC20(_votingEscrow).balanceOf(addr);
-        uint256 votingTotal = IERC20(_votingEscrow).totalSupply();
+        uint256 votingBalance = ERC20(_votingEscrow).balanceOf(addr);
+        uint256 votingTotal = ERC20(_votingEscrow).totalSupply();
 
         uint256 lim = (l * TOKENLESS_PRODUCTION) / 100;
         if ((votingTotal > 0) && (block.timestamp > periodTimestamp[0] + BOOST_WARMUP))

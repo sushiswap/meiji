@@ -1,0 +1,23 @@
+on: [push]
+
+name: foundry
+
+jobs:
+  check:
+    name: Foundry project
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v3
+        with:
+          submodules: recursive
+
+      - name: Install Foundry
+        uses: onbjerg/foundry-toolchain@v1
+        with:
+          version: nightly
+      - name: Run Build
+        run: forge build --names --sizes
+        
+      - name: Run tests 
+        run: IS_TEST=true forge test
+        # 14476842

@@ -1,7 +1,7 @@
 // SPDX-License-Identifier: UNLICENSED
-pragma solidity ^0.8.14;
+pragma solidity 0.8.15;
 
-import "@openzeppelin/contracts/access/Ownable.sol";
+import "../../lib/solmate/src/auth/Owned.sol";
 import "./interfaces/IGaugeController.sol";
 import "./interfaces/IVotingEscrow.sol";
 
@@ -16,7 +16,7 @@ function max(uint256 a, uint256 b) pure returns (uint256) {
  * @notice Controls liquidity gauges and the issuance of coins through the gauges
  * @dev Ported from vyper (https://github.com/curvefi/curve-dao-contracts/blob/master/contracts/GaugeController.vy)
  */
-contract GaugeController is Ownable, IGaugeController {
+contract GaugeController is Owned, IGaugeController {
     struct Point {
         uint256 bias;
         uint256 slope;
@@ -75,7 +75,7 @@ contract GaugeController is Ownable, IGaugeController {
      * @notice Contract constructor
      * @param _votingEscrow `VotingEscrow` contract address
      */
-    constructor(address _votingEscrow) {
+    constructor(address _votingEscrow) Owned(msg.sender) {
         votingEscrow = _votingEscrow;
         timeTotal = (block.timestamp / WEEK) * WEEK;
     }

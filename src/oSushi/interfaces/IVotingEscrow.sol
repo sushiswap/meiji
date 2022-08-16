@@ -1,5 +1,5 @@
 // SPDX-License-Identifier: UNLICENSED
-pragma solidity ^0.8.0;
+pragma solidity 0.8.15;
 
 interface IVotingEscrow {
     event Deposit(
@@ -20,8 +20,6 @@ interface IVotingEscrow {
     function symbol() external view returns (string memory);
 
     function decimals() external view returns (uint8);
-
-    function smartWalletChecker() external view returns (address);
 
     function supply() external view returns (uint256);
 
@@ -65,8 +63,6 @@ interface IVotingEscrow {
     function getCheckpointTime(address _addr, uint256 _idx) external view returns (uint256);
 
     function unlockTime(address _addr) external view returns (uint256);
-
-    function setSmartWalletChecker(address addr) external;
 
     function checkpoint() external;
 

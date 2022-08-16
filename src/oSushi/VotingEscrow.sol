@@ -1,11 +1,11 @@
 // SPDX-License-Identifier: UNLICENSED
-pragma solidity ^0.8.14;
+pragma solidity 0.8.15;
 
-import "@openzeppelin/contracts/access/Ownable.sol";
-import "@openzeppelin/contracts/token/ERC20/utils/SafeERC20.sol";
-import "@openzeppelin/contracts/token/ERC20/extensions/IERC20Metadata.sol";
-import "@openzeppelin/contracts/security/ReentrancyGuard.sol";
 import "./interfaces/IVotingEscrow.sol";
+import "../../lib/solmate/src/tokens/ERC20.sol";
+import "../../lib/solmate/src/utils/SafeTransferLib.sol";
+import "../../lib/solmate/src/utils/ReentrancyGuard.sol";
+import "../../lib/solmate/src/auth/Owned.sol";
 import "./interfaces/ISmartWalletChecker.sol";
 import "./libraries/Integers.sol";
 
@@ -32,8 +32,7 @@ import "./libraries/Integers.sol";
 // 0 +--------+------> time
 //       maxtime
 
-contract VotingEscrow is Ownable, ReentrancyGuard, IVotingEscrow {
-    using SafeERC20 for IERC20;
+contract VotingEscrow is ReentrancyGuard, IVotingEscrow {
     using Integers for int128;
     using Integers for uint256;
 
@@ -74,10 +73,6 @@ contract VotingEscrow is Ownable, ReentrancyGuard, IVotingEscrow {
     string public override symbol;
     uint8 public immutable override decimals;
 
-    // Checker for whitelisted (smart contract) wallets which are allowed to deposit
-    // The goal is to prevent tokenizing the escrow
-    address public override smartWalletChecker;
-
     constructor(
         address _token,
         string memory _name,
@@ -86,23 +81,10 @@ contract VotingEscrow is Ownable, ReentrancyGuard, IVotingEscrow {
         token = _token;
         name = _name;
         symbol = _symbol;
-        decimals = IERC20Metadata(_token).decimals();
+        decimals = ERC20(_token).decimals();
 
         pointHistory[0].blk = block.number;
         pointHistory[0].ts = block.timestamp;
-    }
-
-    /**
-     * @notice Check if the call is from an EOA or a whitelisted smart contract, revert if not
-     */
-    modifier assertNotContract {
-        if (msg.sender != tx.origin) {
-            address checker = smartWalletChecker;
-            if (checker != address(0)) {
-                require(ISmartWalletChecker(checker).check(msg.sender), "VE: CONTRACT_NOT_ALLOWED");
-            }
-        }
-        _;
     }
 
     /**
@@ -132,14 +114,6 @@ contract VotingEscrow is Ownable, ReentrancyGuard, IVotingEscrow {
      */
     function unlockTime(address _addr) external view override returns (uint256) {
         return locked[_addr].end;
-    }
-
-    /**
-     * @notice Set an external contract to check for approved smart contract wallets
-     * @param addr Address of Smart contract checker
-     */
-    function setSmartWalletChecker(address addr) external override onlyOwner {
-        smartWalletChecker = addr;
     }
 
     /**
@@ -304,7 +278,7 @@ contract VotingEscrow is Ownable, ReentrancyGuard, IVotingEscrow {
         // _locked.end > block.timestamp (always)
         _checkpoint(_addr, old_locked, _locked);
 
-        IERC20(token).safeTransferFrom(_addr, address(this), _value);
+        SafeTransferLib.safeTransferFrom(ERC20(token), _addr, address(this), _value);
 
         emit Deposit(_addr, _value, _locked.end, _type, block.timestamp);
         emit Supply(supply_before, supply_before + _value);
@@ -362,7 +336,7 @@ contract VotingEscrow is Ownable, ReentrancyGuard, IVotingEscrow {
      * @param _value Amount to deposit
      * @param _duration Epoch time until tokens unlock from now
      */
-    function createLock(uint256 _value, uint256 _duration) external override nonReentrant assertNotContract {
+    function createLock(uint256 _value, uint256 _duration) external override nonReentrant {
         uint256 unlock_time = ((block.timestamp + _duration) / WEEK) * WEEK;
         // Locktime is rounded down to a multiple of interval
         LockedBalance memory _locked = locked[msg.sender];
@@ -381,7 +355,7 @@ contract VotingEscrow is Ownable, ReentrancyGuard, IVotingEscrow {
      * @param _addr User's wallet address
      * @param _value Amount of tokens to deposit and add to the lock
      */
-    function increaseAmountFor(address _addr, uint256 _value) external override nonReentrant assertNotContract {
+    function increaseAmountFor(address _addr, uint256 _value) external override nonReentrant {
         LockedBalance memory _locked = locked[_addr];
 
         require(_value > 0, "VE: INVALID_VALUE");
@@ -396,7 +370,7 @@ contract VotingEscrow is Ownable, ReentrancyGuard, IVotingEscrow {
      *          without modifying the unlock time
      * @param _value Amount of tokens to deposit and add to the lock
      */
-    function increaseAmount(uint256 _value) external override nonReentrant assertNotContract {
+    function increaseAmount(uint256 _value) external override nonReentrant {
         LockedBalance memory _locked = locked[msg.sender];
 
         require(_value > 0, "VE: INVALID_VALUE");
@@ -410,7 +384,7 @@ contract VotingEscrow is Ownable, ReentrancyGuard, IVotingEscrow {
      * @notice Extend the unlock time for `msg.sender` to `_duration`
      * @param _duration Increased epoch time for unlocking
      */
-    function increaseUnlockTime(uint256 _duration) external override nonReentrant assertNotContract {
+    function increaseUnlockTime(uint256 _duration) external override {
         LockedBalance memory _locked = locked[msg.sender];
         uint256 unlock_time = ((_locked.end + _duration) / WEEK) * WEEK;
         // Locktime is rounded down to a multiple of interval
@@ -442,7 +416,7 @@ contract VotingEscrow is Ownable, ReentrancyGuard, IVotingEscrow {
         // Both can have >= 0 amount
         _checkpoint(msg.sender, _locked, LockedBalance(0, 0, 0));
 
-        IERC20(token).safeTransfer(msg.sender, value / 2);
+        SafeTransferLib.safeTransfer(ERC20(token), msg.sender, value / 2);
         // TODO: distribute another 50% to holders
 
         emit Cancel(msg.sender, value, block.timestamp);
@@ -467,7 +441,7 @@ contract VotingEscrow is Ownable, ReentrancyGuard, IVotingEscrow {
         // Both can have >= 0 amount
         _checkpoint(msg.sender, _locked, LockedBalance(0, 0, 0));
 
-        IERC20(token).safeTransfer(msg.sender, value);
+        SafeTransferLib.safeTransfer(ERC20(token),msg.sender, value);
 
         emit Withdraw(msg.sender, value, block.timestamp);
         emit Supply(supply_before, supply_before - value);

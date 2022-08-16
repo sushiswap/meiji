@@ -1,5 +1,5 @@
 // SPDX-License-Identifier: UNLICENSED
-pragma solidity ^0.8.0;
+pragma solidity 0.8.15;
 
 interface IMinter {
     event UpdateMiningParameters(uint256 time, uint256 rate, uint256 supply);

@@ -1,5 +1,5 @@
 // SPDX-License-Identifier: UNLICENSED
-pragma solidity ^0.8.0;
+pragma solidity 0.8.15;
 
 interface ILiquidityGauge {
     event Deposit(address indexed provider, uint256 value);
