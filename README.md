@@ -1,4 +1,4 @@
-# 🍣 Sushi Meiji Contracts 🍣
+# 🍣 Sushi Meiji Restoration Contracts 🍣
 
 These contracts outline the Contracts for the Meiji Restoration, which hopes to instill a new era of decentralization and prosperity for Sushi.
 The full details of the proposal are outlined in [this forum post](https://forum.sushi.com/t/sushi-meiji-restoration/10969), which details the extend of both the DAO Changes and the oSushi mechanics.
