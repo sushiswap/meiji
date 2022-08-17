@@ -75,7 +75,7 @@ contract VotingEscrowTest {
     
         oSushi.cancel();
 
-        require(Sushi.balanceOf(msg.sender) == 500 ether, "Improper Cancellation Fee");
+        require(Sushi.balanceOf(address(this)) == 500 ether, "Improper Cancellation Fee");
     }
     /* Test Time Math, ensure Epochs are being counter properly */
 }
