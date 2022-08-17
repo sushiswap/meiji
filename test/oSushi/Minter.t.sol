@@ -10,6 +10,10 @@ contract MockController {
     }
 }
 
+interface Cheatcodes {
+    function prank(address, address) external;
+}
+
 contract MockGauge {
     uint256 fraction = 100;
 
@@ -29,11 +33,13 @@ contract MockGauge {
 contract MinterUnitTest {
     Minter minter;
     MockERC20 token;
+    Cheatcodes vm;
 
     function setUp() public {
         MockController controller = new MockController();
         token = new MockERC20("TokenA", "A", 18);
         minter = new Minter(address(token), address(controller));
+        vm = Cheatcodes(0x7109709ECfa91a80626fF3989D68f67F5b1DD12D);
     }
 
     function testMint() public {
@@ -48,17 +54,25 @@ contract MinterUnitTest {
         require(final_balance > initial_balance, "Minting Failed");
     }
 
+    /* TODO
     function testMintMany() public {
+    } */
+
+    function testMintFor() public {
         MockGauge gauge = new MockGauge();
 
-        uint256 initial_balance = token.balanceOf(address(this));
-
-        minter.mint(address(gauge));
-
-        uint256 final_balance = token.balanceOf(address(this));
+        uint256 initial_balance = token.balanceOf(address(7));
     
+        address test_context = address(this);
+
+        vm.prank(address(7), address(7));
+    
+        minter.toggle_approve_mint(test_context);
+
+        minter.mint_for(address(gauge), address(7));
+
+        uint256 final_balance = token.balanceOf(address(7));
+
         require(final_balance > initial_balance, "Minting Failed");
     }
-
-    function testMintFor() public {}
 }

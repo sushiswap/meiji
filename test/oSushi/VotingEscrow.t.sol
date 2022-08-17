@@ -77,5 +77,8 @@ contract VotingEscrowTest {
 
         require(Sushi.balanceOf(address(this)) == 500 ether, "Improper Cancellation Fee");
     }
+
+    // TODO: Tests for depositFor and IncreaseAmountFor using address impersenation
+
     /* Test Time Math, ensure Epochs are being counter properly */
 }

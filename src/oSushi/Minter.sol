@@ -70,7 +70,7 @@ contract Minter {
     function mint_for(address gauge_address, address _for) external lock {
     
         if (allowed_to_mint_for[msg.sender][_for]) {
-            _mint_for(gauge_address, msg.sender);
+            _mint_for(gauge_address, _for);
         }
     }
     
