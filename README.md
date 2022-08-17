@@ -13,5 +13,5 @@ Distributed under the WTFPL License. See `LICENSE` for more information.
 
 ## Authors
 
-* (ControlCplusControlV)[https://twitter.com/controlcthenv]
+* [ControlCplusControlV](https://twitter.com/controlcthenv)
 * [LevX](https://twitter.com/LevxApp/)
