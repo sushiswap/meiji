@@ -106,15 +106,7 @@ oSushi will recieve 90% of xSushi fee revenues, these fees will be auctioned off
      *          without modifying the unlock time
      * @param _value Amount of tokens to deposit and add to the lock
      */
-    function increaseAmount(uint256 _value) external {
-        LockedBalance memory _locked = locked[msg.sender];
-
-        require(_value > 0, "VE: INVALID_VALUE");
-        require(_locked.amount > 0, "VE: LOCK_NOT_FOUND");
-        require(_locked.end > block.timestamp, "VE: LOCK_EXPIRED");
-
-        _depositFor(msg.sender, _value, 0, _locked, INCREASE_LOCK_AMOUNT);
-    }
+    function increaseAmount(uint256 _value) external;
 ```
 
 ```solidity
@@ -131,15 +123,7 @@ oSushi will recieve 90% of xSushi fee revenues, these fees will be auctioned off
      *          without modifying the unlock time
      * @param _value Amount of tokens to deposit and add to the lock
      */
-    function increaseAmount(uint256 _value) external {
-        LockedBalance memory _locked = locked[msg.sender];
-
-        require(_value > 0, "VE: INVALID_VALUE");
-        require(_locked.amount > 0, "VE: LOCK_NOT_FOUND");
-        require(_locked.end > block.timestamp, "VE: LOCK_EXPIRED");
-
-        _depositFor(msg.sender, _value, 0, _locked, INCREASE_LOCK_AMOUNT);
-    }
+    function increaseAmount(uint256 _value) external;
 ```
 
 ```solidity
@@ -164,15 +148,7 @@ oSushi will recieve 90% of xSushi fee revenues, these fees will be auctioned off
      *          without modifying the unlock time
      * @param _value Amount of tokens to deposit and add to the lock
      */
-    function increaseAmount(uint256 _value) external {
-        LockedBalance memory _locked = locked[msg.sender];
-
-        require(_value > 0, "VE: INVALID_VALUE");
-        require(_locked.amount > 0, "VE: LOCK_NOT_FOUND");
-        require(_locked.end > block.timestamp, "VE: LOCK_EXPIRED");
-
-        _depositFor(msg.sender, _value, 0, _locked, INCREASE_LOCK_AMOUNT);
-    }
+    function increaseAmount(uint256 _value) external;
 ```
 
 ## GaugeController
