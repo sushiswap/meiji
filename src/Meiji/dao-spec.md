@@ -4,15 +4,15 @@ The Meiji DAO is Sushi's latest iteration, combining decentralized governace wit
 
 ## Overall Design
 
-The Sushi Meiji DAO will be replacing legacy govnerance structures, and so to do this many adaptions will be needed.
+The Sushi Meiji DAO replaces legacy governance structures.
 
 ## Description
 
 ### Membership
 
-- Meiji DAO Contracts will allow entrance into the DAO by locking up SUSHI and granting shares according with `Shares granted = sqrt(SUSHI Locked up) / log(sqrt(Total Members))`
+- Meiji DAO requires a lock-up of SUSHI for entrance -- subsequently granting shares as follows: `Shares granted = sqrt(SUSHI Locked up) / log(sqrt(Total Members))`
 - An Initiation Period then begins after locking up SUSHI until you realize the voting power from the gained shares, of double the voting period.
-- Each Member of the DAO will have a voting weight assosiated with them, an exile status (if they've been kicked out nulling their voting power), and a public key assosiated with their voting.
+- Each Member of the DAO will have a voting weight associated with them, an exile status (if they've been kicked out nulling their voting power), and a public key assosiated with their voting.
 - A vote can be started to exile a Member, requiring quroum and a 70% majority.
 - Exiled members can leave claiming their SUSHI, but cannot rejoin.
 - Ragequit will always be an option to forfeit voting power to claim underlying SUSHI
